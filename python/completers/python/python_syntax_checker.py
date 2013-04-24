@@ -21,6 +21,7 @@ from cStringIO import StringIO
 import sys
 import vim
 import re
+import time
 
 
 class SyntaxChecker( object ):
@@ -33,9 +34,7 @@ class SyntaxChecker( object ):
     self._checking_thread.start()
     # parses a string like:
     # stdin:10:10 E201 Whitespace after '('
-    self._parsing_regex = re.compile( """
-                                     (\S+?):(\d+):(\d+): ([a-zA-Z])(\d+?) (.*)
-                                     """, re.X )
+    self._parsing_regex = re.compile( '(\S+?):(\d+):(\d+): ([a-zA-Z])(\d+?) (.*)' )
 
 
   def PerformSyntaxChecking( self, query, start_column ):
@@ -48,7 +47,7 @@ class SyntaxChecker( object ):
 
 
   def ReturnSyntaxCheckingResults( self ):
-      return self.diagnostics or []
+      return self.diagnostics
 
 
   def SyntaxCheck( self ):
@@ -59,6 +58,7 @@ class SyntaxChecker( object ):
       # all syntax checking tools pass their results to stdout...
       # so we need to capture it
       try:
+        #time.sleep(0.1)
         old_stdout = sys.stdout
         sys.stdout = redirected_stdout = StringIO()
 
@@ -86,6 +86,7 @@ class SyntaxChecker( object ):
                             'nr': x[4],
                             'text': x[5],
                             'valid': 1,
+
                             'bufnr': bufnr}
                           for x in self._parsing_regex.findall(diagnostics) ]
       self._checking_finished.set()
